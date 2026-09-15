@@ -19,7 +19,7 @@ namespace HugeArrayGenerator
                 sb.AppendLine("    public static ReadOnlySpan<byte> Data => new byte[] {");
 
                 // Every line is 20 tokens. So 100000 lines => 2 000 000 tokens
-                int linesCount = 100000; 
+                int linesCount = 370000; 
                 for (int i = 0; i < linesCount; i++)
                 {
                     sb.AppendLine("        0xC0, 0x1D, 0x00, 0x00, 0x04, 0x77, 0x00, 0x00, 0x23, 0x77, 0x00, 0x00, 0x34, 0x77, 0x00, 0x00, 0x72, 0x77, 0x00, 0x00,");

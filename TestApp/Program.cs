@@ -8,4 +8,4 @@ var typeViaAssembly = currentAssembly.GetType("GeneratedNamespace.GeneratedHeavy
 Console.WriteLine($"The GeneratedNamespace.GeneratedHeavyData: {typeViaAssembly != null}");
 
 int arrayLength = GeneratedNamespace.GeneratedHeavyData.Data.Length;
-Console.WriteLine($"Data array lenght: {arrayLength:N0} байт");
+Console.WriteLine($"Data array lenght: {arrayLength:N0} bytes");
