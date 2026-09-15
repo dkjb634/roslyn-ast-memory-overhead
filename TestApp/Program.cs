@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Reflection;
 
-Console.WriteLine("Source Generator запущен успешно!");
-// Класс GeneratedHeavyData создан генератором. Мы можем его увидеть через рефлексию
-var type = Type.GetType("GeneratedNamespace.GeneratedHeavyData");
-Console.WriteLine($"Сгенерированный класс найден: {type != null}");
+Console.WriteLine("Source Generator launched");
+
+var currentAssembly = Assembly.GetExecutingAssembly();
+var typeViaAssembly = currentAssembly.GetType("GeneratedNamespace.GeneratedHeavyData");
+Console.WriteLine($"The GeneratedNamespace.GeneratedHeavyData: {typeViaAssembly != null}");
+
+int arrayLength = GeneratedNamespace.GeneratedHeavyData.Data.Length;
+Console.WriteLine($"Data array lenght: {arrayLength:N0} байт");
