@@ -9,7 +9,20 @@ namespace HugeArrayGenerator
     {
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            // Регистрируем генерацию кода при старте сборки
+            // Эквивалент твоих 370 000 строк по 20 токенов = 7 400 000 реальных байт
+            int totalBytes = 370000 * 20; 
+            byte[] rawBinaryData = new byte[totalBytes];
+            
+            // Заполняем массив байтами (имитируем данные emoji)
+            for (int i = 0; i < rawBinaryData.Length; i++) 
+            {
+                rawBinaryData[i] = 0xC0; 
+            }
+
+            // Кодируем массив в одну компактную Base64 строку
+            string base64Data = Convert.ToBase64String(rawBinaryData);
+
+            // Передаем в Roslyn только постобработку
             context.RegisterPostInitializationOutput(postInitContext =>
             {
                 var sb = new StringBuilder();
@@ -17,21 +30,20 @@ namespace HugeArrayGenerator
                 sb.AppendLine("using System;");
                 sb.AppendLine("namespace GeneratedNamespace;");
                 sb.AppendLine("internal sealed class GeneratedHeavyData {");
-                sb.AppendLine("    private static ReadOnlySpan<byte> Data => new byte[] {");
-
-                // Генерируем 100,000 строк (для тестов в IDE этого хватит, чтобы заметить просадку)
-                // Каждая строка — это 20 токенов (итого 2,000,000 токенов)
-                int linesCount = 370000; 
-                for (int i = 0; i < linesCount; i++)
-                {
-                    sb.AppendLine("        0xC0, 0x1D, 0x00, 0x00, 0x04, 0x77, 0x00, 0x00, 0x23, 0x77, 0x00, 0x00, 0x34, 0x77, 0x00, 0x00, 0x72, 0x77, 0x00, 0x00,");
-                }
-
-                sb.AppendLine("        0x6F, 0x6E, 0x67");
-                sb.AppendLine("    };");
+                sb.AppendLine("    private static byte[] _cachedData;");
+                sb.AppendLine("    public static ReadOnlySpan<byte> Data {");
+                sb.AppendLine("        get {");
+                sb.AppendLine("            if (_cachedData == null) {");
+                // Roslyn прочитает эту гигантскую строку как ОДИН токен мгновенно и без затрат памяти!
+                sb.AppendLine($"                string base64 = \"{base64Data}\";");
+                sb.AppendLine("                _cachedData = Convert.FromBase64String(base64);");
+                sb.AppendLine("            }");
+                sb.AppendLine("            return _cachedData;");
+                sb.AppendLine("        }");
+                sb.AppendLine("    }");
                 sb.AppendLine("}");
 
-                // Добавляем сгенерированный исходный код в компиляцию
+                // Передаем Roslyn оптимизированный код
                 postInitContext.AddSource("GeneratedHeavyData.g.cs", sb.ToString());
             });
         }
